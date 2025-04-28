@@ -1373,6 +1373,7 @@ void pubMqttDiscovery() {
       {"switch", "force_scan"}, // Now a button
       {"sensor", "interval"}, // Now a number
       {"sensor", "scanbcnct"}, // Now a number
+      {"switch", "ohdiscovery"}, // Now a new key
       {"switch", "discovery"}}; // Now a new key
 
   for (int i = 0; i < EntitiesCount; i++) {
