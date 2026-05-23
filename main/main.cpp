@@ -2356,17 +2356,30 @@ void setupWiFiManager() {
     cnt_index = CNT_DEFAULT_INDEX;
 #  ifndef WIFIMNG_HIDE_MQTT_CONFIG
 #    if !MQTT_BROKER_MODE
-    strcpy(cnt_parameters_array[cnt_index].mqtt_server, custom_mqtt_server.getValue());
-    strcpy(cnt_parameters_array[cnt_index].mqtt_port, custom_mqtt_port.getValue());
-    strcpy(cnt_parameters_array[cnt_index].mqtt_user, custom_mqtt_user.getValue());
-    // Check if the MQTT password field contains the default value
-    if (strcmp(custom_mqtt_pass.getValue(), MQTT_PASS) != 0) {
-      // If it's not the default password, update the MQTT password
+    // Only persist non-empty values so a partial form submit (for example a
+    // programmatic POST of only s/p) cannot wipe compile-time defaults.
+    // mqtt_pass keeps its existing sentinel-based guard below.
+    if (strlen(custom_mqtt_server.getValue()) > 0) {
+      strcpy(cnt_parameters_array[cnt_index].mqtt_server, custom_mqtt_server.getValue());
+    }
+    if (strlen(custom_mqtt_port.getValue()) > 0) {
+      strcpy(cnt_parameters_array[cnt_index].mqtt_port, custom_mqtt_port.getValue());
+    }
+    if (strlen(custom_mqtt_user.getValue()) > 0) {
+      strcpy(cnt_parameters_array[cnt_index].mqtt_user, custom_mqtt_user.getValue());
+    }
+    // Persist the MQTT password only when the form supplied a non-empty value
+    // that also differs from the compile-time MQTT_PASS sentinel. An empty
+    // value (partial / programmatic POST) must not wipe the stored password.
+    if (strlen(custom_mqtt_pass.getValue()) > 0 &&
+        strcmp(custom_mqtt_pass.getValue(), MQTT_PASS) != 0) {
       strcpy(cnt_parameters_array[cnt_index].mqtt_pass, custom_mqtt_pass.getValue());
     }
-    strcpy(mqtt_topic, custom_mqtt_topic.getValue());
-    if (mqtt_topic[strlen(mqtt_topic) - 1] != '/' && strlen(mqtt_topic) < parameters_size) {
-      strcat(mqtt_topic, "/");
+    if (strlen(custom_mqtt_topic.getValue()) > 0) {
+      strcpy(mqtt_topic, custom_mqtt_topic.getValue());
+      if (mqtt_topic[strlen(mqtt_topic) - 1] != '/' && strlen(mqtt_topic) < parameters_size) {
+        strcat(mqtt_topic, "/");
+      }
     }
 
     cnt_parameters_array[cnt_index].isConnectionSecure = *custom_mqtt_secure.getValue();
@@ -2386,8 +2399,12 @@ void setupWiFiManager() {
     }
 #      endif
 #    endif
-    strcpy(gateway_name, custom_gateway_name.getValue());
-    strcpy(ota_pass, custom_ota_pass.getValue());
+    if (strlen(custom_gateway_name.getValue()) > 0) {
+      strcpy(gateway_name, custom_gateway_name.getValue());
+    }
+    if (strlen(custom_ota_pass.getValue()) > 0) {
+      strcpy(ota_pass, custom_ota_pass.getValue());
+    }
 #  endif
 
 #  if !MQTT_BROKER_MODE
